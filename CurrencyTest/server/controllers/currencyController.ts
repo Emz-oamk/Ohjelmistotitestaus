@@ -1,9 +1,10 @@
 import { Request, Response } from "express";
-import { calculateConversion } from "../utils/convert";
+import { convert } from "../services/currencyService";
 
 export const convertAmount = async (req: Request, res: Response) => {
     try {
         const { from, to, amount } = req.body
+
         const fromCode = typeof from === 'string' ? from.trim().toUpperCase() : '';
         const toCode = typeof to === 'string' ? to.trim().toUpperCase() : '';
         const currencyCodePattern = /^[A-Z]{3}$/;
@@ -25,8 +26,8 @@ export const convertAmount = async (req: Request, res: Response) => {
             } else if (parsedAmount <= 0) {
                 res.status(400).json({ error: 'Amount must be greater than zero.' });
             } else {
-                const data = calculateConversion(amount, 0.9)
-                res.status(200).json({ "amount": data })
+                const data = await convert(from, to, amount)
+                res.status(200).json(data)
             }
         }
     } catch (error) {
